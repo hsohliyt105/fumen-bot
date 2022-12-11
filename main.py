@@ -24,10 +24,14 @@ with open("general.log", "a") as general_log_f:
     general_log_f.write(f"{datetime.now()} Started.\n")
 
 load_dotenv(encoding="UTF-8")
-DISCORD_TOKEN = getenv("DISCORD_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
-CLIENT_ID = getenv("DISCORD_ID") #TEST_ID or DISCORD_ID
+DISCORD_TOKEN = getenv("TEST_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
+CLIENT_ID = getenv("TEST_ID") #TEST_ID or DISCORD_ID
 
 intents = Intents.default()
+intents.messages = True
+intents.message_content = True
+intents.guild_messages = True
+
 client = Client(activity=Game("!help"), intents=intents)
 
 # Presence change
@@ -97,9 +101,14 @@ async def on_message(message: Message):
                 return
 
         else:
-            fumen_found = get_fumen(message.content)
+            fumen_found = get_fumen([message.content])
             if fumen_found is not None:
-                pages = decode(fumen_found)
+                try:
+                    pages = decode(fumen_found)
+
+                except:
+                    await message.channel.send("Unsupported fumen string! ")
+                    return
 
                 try:
                     f = draw_fumens(pages)
@@ -116,6 +125,14 @@ async def on_message(message: Message):
                     image.filename = "image.gif"
 
                 await message.channel.send(file=image)
+
+                if len(message.embeds) > 0:
+                    with open("general.log", "a") as general_log_f:
+                        general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} title: {message.embeds[0].title} description: {message.embeds[0].description} fields: {message.embeds[0].fields} footer: {message.embeds[0].footer}\n")
+                else: 
+                    with open("general.log", "a") as general_log_f:
+                        general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n")
+
                 return
 
     except Forbidden:
