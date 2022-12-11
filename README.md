@@ -1,6 +1,8 @@
 # fumen-bot
 Discord bot that produces gif or png based on the fumen string given.
 
+Please invite the bot by [this link](https://discord.com/api/oauth2/authorize?client_id=1014015919351152640&permissions=517543938112&scope=bot).
+
 # Uses
 ## Fumen Strings
 Given any fumen strings given no matter it is in raw fumen string or in url such as https://fumen.zui.jp/, Outputs an image with default Four command. 
@@ -15,7 +17,7 @@ Sends the list of commands and descriptions.
 `!help four`
 
 ## !four
-Sends an four formatted image containing the fumen.
+Sends an [four](https://four.lol/) formatted image containing the fumen.
 
 ### Format
 `!four <fumen string> [options]`
