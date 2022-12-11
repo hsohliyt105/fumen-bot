@@ -3,19 +3,12 @@
 from typing import Dict, List
 from re import findall
 
-def get_fumen(strings: List[str] | str) -> str:
-    if isinstance(strings, str):
-        found = findall('([vmd](110|115)@[\w+/?]+)', strings)
+def get_fumen(strings: List[str]) -> str:
+    for string in strings:
+        found = findall('([vmd](110|115)@[\w+/?]+)', string)
 
         if len(found) > 0:
             return found[0][0]
-
-    else:
-        for string in strings:
-            found = findall('([vmd](110|115)@[\w+/?]+)', string)
-
-            if len(found) > 0:
-                return found[0][0]
 
     return None
 
