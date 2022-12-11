@@ -5,9 +5,9 @@ from typing import List
 from discord import Message, Embed, File
 from py_fumen import decode
 
-from helper import command_list, command_help
+from helper import command_list, command_help, command_option
 from draw_four import draw_fumens
-from functions import get_fumen, get_options
+from functions import get_fumen, get_options, is_colour_code
 
 async def help(message: Message, string: List[str]):
     if len(string) < 2:
@@ -27,6 +27,7 @@ async def help(message: Message, string: List[str]):
         
         if command in command_list:
             embed = Embed(title=command, description=command_help[command])
+            embed.add_field(name="options", value=command_option[command])
 
         else:
             await message.channel.send("There is no such command! ")
@@ -39,12 +40,13 @@ async def four(message: Message, string: List[str]):
     duration = 500
     transparent = True
     theme = "dark"
+    background = None
 
     fumen = get_fumen(string)
     options = get_options(string)
 
     if fumen is None:
-        await message.channel.send("Please include a fumen string! command format: `!image <fumen string> [delay per page in seconds, default=0.5]`")
+        await message.channel.send("Please include a fumen string! `!help four` for more information.")
         return
 
     if 'duration' in options or 'd' in options:
@@ -79,6 +81,17 @@ async def four(message: Message, string: List[str]):
             await message.channel.send("Theme option must be dark or light! ")
             return
 
+    if 'background' in options or 'b' in options:
+        key = 'b' if 'b' in options else 'background'
+        value = options[key]
+
+        if is_colour_code(value):
+            background = value
+
+        else:
+            await message.channel.send("Wrong colour code! ")
+            return
+
     try:
         pages = decode(fumen)
 
@@ -87,7 +100,7 @@ async def four(message: Message, string: List[str]):
         return
 
     try:
-        f = draw_fumens(pages, duration=duration, transparent=transparent, theme=theme)
+        f = draw_fumens(pages, duration=duration, transparent=transparent, theme=theme, background=background)
 
     except ValueError:
         await message.channel.send("Some input is wrong! Please try again. If you think this is a bug, report to 적절한사람#2009. ")

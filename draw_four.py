@@ -60,7 +60,7 @@ def get_max_num_rows(field: Field) -> int:
 
 	return num_rows
 
-def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark") -> Image.Image:
+def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark", background: str = None) -> Image.Image:
 	theme = theme.lower()
 	if theme != "dark" and theme != "light":
 		raise ValueError
@@ -80,10 +80,12 @@ def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transp
 	width = 11 * tile_size
 	height = (num_rows + 3) * tile_size
 
-	if not transparent:
+	if transparent:
+		page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
+	elif background is None:
 		page_img = Image.new("RGBA", (width, height), colours[theme]["Empty"]["normal"])
 	else:
-		page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
+		page_img = Image.new("RGBA", (width, height), background)
 
 	overlay = Image.new("RGBA", (width, height), "#FFFFFF00")
 	overlay_draw = ImageDraw.Draw(overlay)
@@ -135,7 +137,10 @@ def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transp
 
 	return page_img
 
-def draw_fumens(pages: List[Page], tile_size: int = 20, num_rows: Optional[int] = None, start: int = 0, end: Optional[int] = None, transparent: bool = True, duration: int = 500, theme: str = "dark"):
+def draw_fumens(pages: List[Page], tile_size: int = 20, num_rows: Optional[int] = None, start: int = 0, end: Optional[int] = None, transparent: bool = True, duration: int = 500, theme: str = "dark", background: str = None):
+	if len(pages) > 1:
+		transparent = False
+
 	theme = theme.lower()
 	if theme != "dark" and theme != "light":
 		raise ValueError
@@ -162,8 +167,13 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, num_rows: Optional[int] 
 
 	page_imgs: List[Image.Image] = []
 
-	for x in range(start, end):
-		page_imgs.append(draw(pages[x], tile_size, num_rows, transparent, theme))
+	if background is None:
+		for x in range(start, end):
+			page_imgs.append(draw(pages[x], tile_size, num_rows, transparent, theme))
+
+	else:
+		for x in range(start, end):
+			page_imgs.append(draw(pages[x], tile_size, num_rows, transparent, theme, background))
 
 	if len(page_imgs) == 1:
 		page_gif = BytesIO()
