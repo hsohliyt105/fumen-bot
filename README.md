@@ -36,4 +36,4 @@ Option list:
 `background(b)=<hex colour code>` Sets the colour of the background. Default is determined by the theme.
 
 ### Example
-`!fumen v115@HhwhglQpAtwwg0Q4C8JewhglQpAtwwg0Q4A8LeAgH duration=1.5 t=n theme=light b=#FFFFFF`
+`!four v115@HhwhglQpAtwwg0Q4C8JewhglQpAtwwg0Q4A8LeAgH duration=1.5 t=n theme=light b=#FFFFFF`
