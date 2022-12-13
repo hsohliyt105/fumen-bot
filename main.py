@@ -37,8 +37,8 @@ with open("general.log", "a") as general_log_f:
     general_log_f.write(f"{datetime.now()} Started.\n")
 
 load_dotenv(encoding="UTF-8")
-DISCORD_TOKEN = getenv("TEST_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
-CLIENT_ID = getenv("TEST_ID") #TEST_ID or DISCORD_ID
+DISCORD_TOKEN = getenv("DISCORD_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
+CLIENT_ID = getenv("DISCORD_ID") #TEST_ID or DISCORD_ID
 
 intents = Intents.default()
 intents.messages = True
