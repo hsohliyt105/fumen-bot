@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
 
+"""
+To do 
+
+make my sql functions
+
+opener library 
+
+perfect clear library
+
+tinyurl to fumen
+"""
+
 from os import chdir, getenv
 from os.path import abspath, dirname
 from datetime import datetime
@@ -13,8 +25,9 @@ from py_fumen import decode
 
 import command
 import helper
-from functions import get_fumen
+from functions import get_fumen, get_tinyurl
 from draw_four import draw_fumens
+from tinyurl_api import get_alias
 
 abs_path = abspath(__file__)
 dir_name = dirname(abs_path)
@@ -31,6 +44,7 @@ intents = Intents.default()
 intents.messages = True
 intents.message_content = True
 intents.guild_messages = True
+intents.dm_messages = True
 
 client = Client(activity=Game("!help"), intents=intents)
 
@@ -101,7 +115,19 @@ async def on_message(message: Message):
                 return
 
         else:
-            fumen_found = get_fumen([message.content])
+            tinyurl_found = get_tinyurl([message.content])
+
+            if tinyurl_found is not None:
+                try:
+                    alias = get_alias(tinyurl_found)
+                    fumen_found = get_fumen([alias])
+
+                except ValueError:
+                    fumen_found = None
+
+            else: 
+                fumen_found = get_fumen([message.content])
+
             if fumen_found is not None:
                 try:
                     pages = decode(fumen_found)
@@ -126,14 +152,14 @@ async def on_message(message: Message):
 
                 await message.channel.send(file=image)
 
-                if len(message.embeds) > 0:
-                    with open("general.log", "a") as general_log_f:
-                        general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} title: {message.embeds[0].title} description: {message.embeds[0].description} fields: {message.embeds[0].fields} footer: {message.embeds[0].footer}\n")
-                else: 
-                    with open("general.log", "a") as general_log_f:
-                        general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n")
+            if len(message.embeds) > 0:
+                with open("general.log", "a") as general_log_f:
+                    general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} title: {message.embeds[0].title} description: {message.embeds[0].description} fields: {message.embeds[0].fields} footer: {message.embeds[0].footer}\n")
+            else: 
+                with open("general.log", "a") as general_log_f:
+                    general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n")
 
-                return
+            return
 
     except Forbidden:
         with open("error.log", "a") as f:
