@@ -37,3 +37,8 @@ Option list:
 
 ### Example
 `!four v115@HhwhglQpAtwwg0Q4C8JewhglQpAtwwg0Q4A8LeAgH duration=1.5 t=n theme=light b=#FFFFFF`
+
+# Update
+
+## 0.0.4
+[Tinyurls](https://tinyurl.com/app) can now be processed.
