@@ -42,3 +42,6 @@ Option list:
 
 ## 0.0.4
 [Tinyurls](https://tinyurl.com/app) can now be processed.
+
+## 0.0.5
+Fixed major/minor issues
