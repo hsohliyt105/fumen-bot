@@ -20,7 +20,7 @@ Sends the list of commands and descriptions.
 Sends an [four](https://four.lol/) formatted image containing the fumen.
 
 ### Format
-`!four <fumen string> [options]`
+`!four <fumen string / fumen url / tinyurl> [options]`
 
 ### Options
 Use with `option=<option>` format.
