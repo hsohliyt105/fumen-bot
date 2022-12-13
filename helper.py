@@ -4,7 +4,7 @@ command_list = [ 'help', 'four' ]
 
 command_help = { 
     'help': 'Sends the list of commands and descriptions. `!help [command name, optional]`',
-    'four': 'Sends an four formatted image containing the fumen. `!four <fumen string / tinyurl> [options]`' 
+    'four': 'Sends an four formatted image containing the fumen. `!four <fumen string / fumen url / tinyurl> [options]`' 
     }
 
 command_option = { 
