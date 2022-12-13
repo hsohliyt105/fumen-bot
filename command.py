@@ -8,7 +8,7 @@ from py_fumen import decode
 from helper import command_list, command_help, command_option
 from draw_four import draw_fumens
 from functions import get_fumen, get_options, is_colour_code, get_tinyurl
-from tinyurl_api import get_alias
+from tinyurl_api import get_redirection
 
 async def help(message: Message, strings: List[str]):
     if len(strings) < 2:
@@ -51,8 +51,8 @@ async def four(message: Message, strings: List[str]):
     
         if tinyurl is not None:
             try:
-                alias = get_alias(tinyurl)
-                fumen = get_fumen([alias])
+                link = get_redirection(tinyurl)
+                fumen = get_fumen([link])
 
                 if fumen is None:
                     fumen = get_fumen(strings)

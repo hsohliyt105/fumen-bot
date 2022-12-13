@@ -27,7 +27,7 @@ import command
 import helper
 from functions import get_fumen, get_tinyurl
 from draw_four import draw_fumens
-from tinyurl_api import get_alias
+from tinyurl_api import get_redirection
 
 abs_path = abspath(__file__)
 dir_name = dirname(abs_path)
@@ -115,12 +115,12 @@ async def on_message(message: Message):
                 return
 
         else:
-            tinyurl_found = get_tinyurl([message.content])
+            tinyurl = get_tinyurl([message.content])
 
-            if tinyurl_found is not None:
+            if tinyurl is not None:
                 try:
-                    alias = get_alias(tinyurl_found)
-                    fumen_found = get_fumen([alias])
+                    link = get_redirection(tinyurl)
+                    fumen_found = get_fumen([link])
 
                 except ValueError:
                     fumen_found = None

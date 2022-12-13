@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from re import findall
 
 def get_fumen(strings: List[str]) -> str:
@@ -37,11 +37,11 @@ def is_colour_code(string: str) -> bool:
     except:
        return False
 
-def get_tinyurl(strings: List[str]) -> Optional[str]:
+def get_tinyurl(strings: List[str]) -> Optional[Tuple[str]]:
     for string in strings:
-        found = findall('(tinyurl\.com/[^ ]*)', string)
+        found = findall('(https://(tinyurl\.com|tiny\.one|rotf\.lol)/[^ ]*)', string)
 
         if len(found) > 0:
-            return found[0]
+            return found[0][0]
 
     return None

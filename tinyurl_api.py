@@ -1,30 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from os import chdir, getenv
-from os.path import abspath, dirname
+from urllib.request import urlopen
 
-from dotenv import load_dotenv
-from requests import get
+def get_redirection(url) -> str:
+    r = urlopen(url)
+    status_code = r.getcode()
 
-abs_path = abspath(__file__)
-dir_name = dirname(abs_path)
-chdir(dir_name)
+    if status_code == 200 or 300 <= status_code < 310:
+        return r.url
 
-load_dotenv(encoding="UTF-8")
-
-TINYURL_TOKEN = getenv("TINYURL_TOKEN")
-
-base = "https://api.tinyurl.com"
-
-def get_alias(alias: str) -> str:
-    params = { 
-        'api_token': TINYURL_TOKEN
-        }
-
-    r = get(f"{base}/alias/{alias}", params=params)
-
-    if r.status_code == 200:
-        return r.json()['data']['url']
-
-    else:
-        raise ValueError
+    raise ValueError
