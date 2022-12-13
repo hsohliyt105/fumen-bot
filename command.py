@@ -7,10 +7,11 @@ from py_fumen import decode
 
 from helper import command_list, command_help, command_option
 from draw_four import draw_fumens
-from functions import get_fumen, get_options, is_colour_code
+from functions import get_fumen, get_options, is_colour_code, get_tinyurl
+from tinyurl_api import get_alias
 
-async def help(message: Message, string: List[str]):
-    if len(string) < 2:
+async def help(message: Message, strings: List[str]):
+    if len(strings) < 2:
         embed = Embed(title="List of commands")
 
         desc = ""
@@ -23,7 +24,7 @@ async def help(message: Message, string: List[str]):
         embed.description = desc
 
     else:
-        command = string[1]
+        command = strings[1]
         
         if command in command_list:
             embed = Embed(title=command, description=command_help[command])
@@ -36,17 +37,31 @@ async def help(message: Message, string: List[str]):
     await message.channel.send(embed=embed)
     return
     
-async def four(message: Message, string: List[str]): 
+async def four(message: Message, strings: List[str]): 
     duration = 500
     transparent = True
     theme = "dark"
     background = None
 
-    fumen = get_fumen(string)
-    options = get_options(string)
+    fumen = get_fumen(strings)
+    options = get_options(strings)
 
     if fumen is None:
-        await message.channel.send("Please include a fumen string! `!help four` for more information.")
+        tinyurl = get_tinyurl(strings)
+    
+        if tinyurl is not None:
+            try:
+                alias = get_alias(tinyurl)
+                fumen = get_fumen([alias])
+
+                if fumen is None:
+                    fumen = get_fumen(strings)
+
+            except ValueError:
+                fumen = None
+
+    if fumen is None:
+        await message.channel.send("Please include a fumen strings! `!help four` for more information.")
         return
 
     if 'duration' in options or 'd' in options:
@@ -96,7 +111,7 @@ async def four(message: Message, string: List[str]):
         pages = decode(fumen)
 
     except:
-        await message.channel.send("Unsupported fumen string! ")
+        await message.channel.send("Unsupported fumen strings! ")
         return
 
     try:
