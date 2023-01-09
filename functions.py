@@ -39,7 +39,7 @@ def is_colour_code(string: str) -> bool:
 
 def get_tinyurl(strings: List[str]) -> Optional[Tuple[str]]:
     for string in strings:
-        found = findall('(https://(tinyurl\.com|tiny\.one|rotf\.lol)/[^ ]*)', string)
+        found = findall('(https://(tinyurl\.com|tiny\.one|rotf\.lol)/[^ \n]*)', string)
 
         if len(found) > 0:
             return found[0][0]

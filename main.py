@@ -8,8 +8,6 @@ make my sql functions
 opener library 
 
 perfect clear library
-
-tinyurl to fumen
 """
 
 from os import chdir, getenv
