@@ -44,6 +44,7 @@ async def four(message: Message, strings: List[str]):
     transparent = True
     theme = "dark"
     background = None
+    display_comment = True
 
     fumen = get_fumen(strings)
     tinyurl = get_tinyurl(strings)
