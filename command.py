@@ -21,7 +21,7 @@ async def help(message: Message, strings: List[str]):
 
         desc = desc[:-2]
 
-        desc += f"\n!help [command] for more information. "
+        desc += f"\n`!help [command]` for more information. "
 
         embed.description = desc
 
