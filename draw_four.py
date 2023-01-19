@@ -2,9 +2,13 @@
 
 from typing import List, Optional, Tuple
 from io import BytesIO
+from os.path import abspath, dirname
 
 from PIL import Image, ImageDraw, ImageFont
 from py_fumen import Page, Field, parse_piece, get_pieces, rotate_left, rotate_right, rotate_reverse, Operation
+
+abs_path = abspath(__file__)
+dir_name = dirname(abs_path)
 
 colours = {
 	"light": {
@@ -33,7 +37,7 @@ colours = {
 	}
 }
 
-font = ImageFont.truetype("font/Arial Unicode MS.ttf", 15)
+font = ImageFont.truetype(dir_name+"/font/Arial Unicode MS.ttf", 15)
 comment_margin = 5
 
 def get_op_positions(operation: Operation) -> List[List[int]]:
