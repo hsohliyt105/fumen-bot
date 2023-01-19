@@ -114,7 +114,7 @@ async def four(message: Message, strings: List[str]):
         return
 
     try:
-        f = draw_fumens(pages, duration=duration, transparent=transparent, theme=theme, background=background)
+        f = draw_fumens(pages, duration=duration, transparent=transparent, theme=theme, background=background, is_comment=display_comment)
 
     except ValueError:
         await message.channel.send("Some input is wrong! Please try again. If you think this is a bug, report to 적절한사람#2009. ")
