@@ -1,17 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-To do 
-
-make my sql functions
-
-opener library 
-
-perfect clear library
-
-comment display
-"""
-
 from os import chdir, getenv
 from os.path import abspath, dirname
 from datetime import datetime
