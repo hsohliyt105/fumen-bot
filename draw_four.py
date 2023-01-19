@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from io import BytesIO
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from py_fumen import Page, Field, parse_piece, get_pieces, rotate_left, rotate_right, rotate_reverse, Operation
 
 colours = {
@@ -33,6 +33,9 @@ colours = {
 	}
 }
 
+font = ImageFont.truetype("font/Arial Unicode MS.ttf", 15)
+comment_margin = 5
+
 def get_op_positions(operation: Operation) -> List[List[int]]:
 	piece = parse_piece(operation.piece_type)
 	positions = get_pieces(piece)
@@ -60,13 +63,41 @@ def get_max_num_rows(field: Field) -> int:
 
 	return num_rows
 
-def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark", background: str = None) -> Image.Image:
+def text_wrap(text, font, max_width):
+    lines = []
+
+    if font.getsize(text)[0] <= max_width:
+        return text
+
+    for text_line in text.split("\n"):
+        if font.getsize(text_line)[0] <= max_width:
+            lines.append(text_line)
+
+        else:
+            prev_i = 0
+            line = ""
+            for i in range(len(text_line)):
+                line = text_line[prev_i:i+1]
+                if font.getsize(line)[0] > max_width:
+                    lines.append(text_line[prev_i:i])
+                    prev_i = i
+                    continue
+
+                if i == len(text_line) - 1 :
+                    lines.append(text_line[prev_i:i])
+
+    wrapped_text = "\n".join(lines)
+
+    return wrapped_text
+
+def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark", background: str = None, display_comment: bool = False) -> Image.Image:
 	theme = theme.lower()
 	if theme != "dark" and theme != "light":
 		raise ValueError
 
 	field = page.get_field()
 	operation = page.operation
+	comment = page.comment
 
 	if operation is not None:
 		positions = get_op_positions(operation)
@@ -77,8 +108,11 @@ def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transp
 	if num_rows is None:
 		num_rows = get_max_num_rows(field)
 
-	width = 11 * tile_size
-	height = (num_rows + 3) * tile_size
+	width = size[0]
+	height = size[1]
+
+	if display_comment: 
+		comment = text_wrap(comment, font, width - comment_margin * 2)
 
 	if transparent:
 		page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
@@ -95,9 +129,9 @@ def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transp
 			if field.at(i, j) != "_":
 				overlay_draw.rectangle((
 					i * tile_size + tile_size / 4, 
-					height - (j + 2) * tile_size + tile_size / 5 * 2, 
+					(num_rows - j + 1) * tile_size + tile_size / 5 * 2, 
 					(i + 1) * tile_size + tile_size / 4 - 1, 
-					height - (j + 1) * tile_size + tile_size / 5 * 2 - 1),
+					(num_rows - j + 2) * tile_size + tile_size / 5 * 2 - 1),
 					fill=colours[theme]["Shadow"]["normal"])
 
 	page_img = Image.alpha_composite(page_img, overlay)
@@ -109,9 +143,9 @@ def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transp
 			if field.at(i, j) != "_":
 				img_draw.rectangle((
 					i * tile_size, 
-					height - (j + 2) * tile_size - tile_size / 5, 
+					(num_rows - j + 1) * tile_size - tile_size / 5, 
 					(i + 1) * tile_size - 1, 
-					height - (j + 2) * tile_size - 1),
+					(num_rows - j + 2) * tile_size - 1),
 					fill=colours[theme][field.at(i, j)]["light"])
 
 	for i in range(10):
@@ -130,14 +164,24 @@ def draw(page: Page, tile_size: int = 20, num_rows: Optional[int] = None, transp
 
 				img_draw.rectangle((
 					i * tile_size, 
-					height - (j + 2) * tile_size, 
+					(num_rows - j + 1) * tile_size, 
 					(i + 1) * tile_size - 1, 
-					height - (j + 1) * tile_size - 1),
+					(num_rows - j + 2) * tile_size - 1),
 					fill=colours[theme][field.at(i, j)][colour])
+				
+	if display_comment:
+		img_draw.rectangle((
+					0, 
+					(num_rows + 3) * tile_size, 
+					width, 
+					height),
+					fill="#FFFFFF")
+
+		img_draw.text((width / 2, (num_rows + 3) * tile_size + comment_margin), comment, fill="#000000", font=font, anchor="mt", align="center")
 
 	return page_img
 
-def draw_fumens(pages: List[Page], tile_size: int = 20, num_rows: Optional[int] = None, start: int = 0, end: Optional[int] = None, transparent: bool = True, duration: int = 500, theme: str = "dark", background: str = None):
+def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Optional[int] = None, transparent: bool = True, duration: int = 500, theme: str = "dark", background: str = None, is_comment: bool = True):
 	if len(pages) > 1:
 		transparent = False
 
@@ -147,33 +191,46 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, num_rows: Optional[int] 
 
 	if end is None:
 		end = len(pages)
+		
+	width = 11 * tile_size
+	max_num_rows = 0
+	max_comment_height = 0
+	display_comment = False
 
-	if num_rows is None:
-		num_rows = 0
+	for x in range(start, end):
+		field = pages[x].get_field()
+		operation = pages[x].operation
+		comment = pages[x].comment
 
-		for x in range(start, end):
-			field = pages[x].get_field()
-			operation = pages[x].operation
+		if operation is not None:
+			positions = get_op_positions(operation)
 
-			if operation is not None:
-				positions = get_op_positions(operation)
-
-				for position in positions:
-					field.set(position[0], position[1], operation.piece_type)
+			for position in positions:
+				field.set(position[0], position[1], operation.piece_type)
 					
-			num_rows = max(get_max_num_rows(field), num_rows)
+		max_num_rows = max(get_max_num_rows(field), max_num_rows)
 
-	num_rows = min(23, num_rows)
+		if comment is not None and comment != "" and is_comment:
+			display_comment = True
+			comment = text_wrap(comment, font, width)
+			max_comment_height = max(font.getbbox(comment)[3] - font.getbbox(comment)[1], max_comment_height)
+
+	max_num_rows = min(23, max_num_rows)
+
+	height = (max_num_rows + 3) * tile_size
+
+	if display_comment:
+		height += max_comment_height + 2 * comment_margin
 
 	page_imgs: List[Image.Image] = []
 
 	if background is None:
 		for x in range(start, end):
-			page_imgs.append(draw(pages[x], tile_size, num_rows, transparent, theme))
+			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, display_comment=display_comment))
 
 	else:
 		for x in range(start, end):
-			page_imgs.append(draw(pages[x], tile_size, num_rows, transparent, theme, background))
+			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, background, display_comment))
 
 	if len(page_imgs) == 1:
 		page_gif = BytesIO()

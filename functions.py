@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from re import findall
 
+from tinyurl_api import get_redirection
+
 def get_fumen(strings: List[str]) -> str:
+    tinyurl = get_tinyurl(strings)
+
+    if tinyurl is not None:
+        try:
+            strings.append(get_redirection(tinyurl))
+
+        except ValueError:
+            pass
+
     for string in strings:
         found = findall('([vmd](110|115)@[\w+/?]+)', string)
 
@@ -37,7 +48,7 @@ def is_colour_code(string: str) -> bool:
     except:
        return False
 
-def get_tinyurl(strings: List[str]) -> Optional[Tuple[str]]:
+def get_tinyurl(strings: List[str]) -> Optional[str]:
     for string in strings:
         found = findall('(https://(tinyurl\.com|tiny\.one|rotf\.lol)/[^ \n]*)', string)
 

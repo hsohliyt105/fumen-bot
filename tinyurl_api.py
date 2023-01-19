@@ -2,7 +2,9 @@
 
 from urllib.request import urlopen
 
-def get_redirection(url) -> str:
+import requests
+
+def get_redirection(url: str) -> str:
     r = urlopen(url)
     status_code = r.getcode()
 
@@ -10,3 +12,13 @@ def get_redirection(url) -> str:
         return r.url
 
     raise ValueError
+
+def make_tinyurl(url) -> str:
+    params = {'url': url}
+
+    r = requests.post("http://tinyurl.com/api-create.php?", params=params)
+
+    if r.status_code == 200:
+        return r.text
+
+    raise Exception(r.reason)

@@ -8,7 +8,7 @@ from py_fumen import decode
 from helper import command_list, command_help, command_option
 from draw_four import draw_fumens
 from functions import get_fumen, get_options, is_colour_code, get_tinyurl
-from tinyurl_api import get_redirection
+from tinyurl_api import make_tinyurl
 
 async def help(message: Message, strings: List[str]):
     if len(strings) < 2:
@@ -22,6 +22,8 @@ async def help(message: Message, strings: List[str]):
         desc = desc[:-2]
 
         embed.description = desc
+
+        embed.set_footer("!help [command] for more information. ")
 
     else:
         command = strings[1]
@@ -44,24 +46,11 @@ async def four(message: Message, strings: List[str]):
     background = None
 
     fumen = get_fumen(strings)
+    tinyurl = get_tinyurl(strings)
     options = get_options(strings)
 
     if fumen is None:
-        tinyurl = get_tinyurl(strings)
-    
-        if tinyurl is not None:
-            try:
-                link = get_redirection(tinyurl)
-                fumen = get_fumen([link])
-
-                if fumen is None:
-                    fumen = get_fumen(strings)
-
-            except ValueError:
-                fumen = None
-
-    if fumen is None:
-        await message.channel.send("Please include a fumen strings! `!help four` for more information.")
+        await message.channel.send("Please include a fumen string! `!help four` for more information.")
         return
 
     if 'duration' in options or 'd' in options:
@@ -107,11 +96,21 @@ async def four(message: Message, strings: List[str]):
             await message.channel.send("Wrong colour code! ")
             return
 
+    if 'comment' in options or 'c' in options:
+        key = 'c' if 'c' in options else 'comment'
+        value = options[key]
+
+        display_comment = True if value in [ "y", "yes" ] else False if value in [ "n", "no" ] else None
+
+        if display_comment is None:
+            await message.channel.send("Comment option must be yes (y) or no (n)! ")
+            return
+
     try:
         pages = decode(fumen)
 
     except:
-        await message.channel.send("Unsupported fumen strings! ")
+        await message.channel.send("Unsupported fumen string! ")
         return
 
     try:
@@ -127,6 +126,10 @@ async def four(message: Message, strings: List[str]):
     else:
         image.filename = "image.gif"
 
-    await message.channel.send(file=image)
+    if tinyurl is None or get_fumen([tinyurl]) != fumen:
+        base_url = "https://knewjade.github.io/fumen-for-mobile/#?d="
+        tinyurl = make_tinyurl(base_url + fumen)
+
+    await message.channel.send(tinyurl ,file=image)
 
     return
