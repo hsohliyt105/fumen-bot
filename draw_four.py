@@ -38,7 +38,9 @@ colours = {
 }
 
 font = ImageFont.truetype(dir_name+"/font/Arial Unicode MS.ttf", 15)
-comment_margin = 5
+comment_top_margin = 5
+comment_bottom_margin = 15
+comment_side_margin = 5
 
 def get_op_positions(operation: Operation) -> List[List[int]]:
 	piece = parse_piece(operation.piece_type)
@@ -94,7 +96,7 @@ def text_wrap(text, font, max_width):
 
     return wrapped_text
 
-def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark", background: str = None, display_comment: bool = False) -> Image.Image:
+def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark", background: str = None, display_comment: bool = False, font: ImageFont.FreeTypeFont = None) -> Image.Image:
 	theme = theme.lower()
 	if theme != "dark" and theme != "light":
 		raise ValueError
@@ -116,7 +118,7 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 	height = size[1]
 
 	if display_comment: 
-		comment = text_wrap(comment, font, width - comment_margin * 2)
+		comment = text_wrap(comment, font, width - 2 * comment_side_margin)
 
 	if transparent:
 		page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
@@ -181,7 +183,7 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 					height),
 					fill="#FFFFFF")
 
-		img_draw.text((width / 2, (num_rows + 3) * tile_size + comment_margin), comment, fill="#000000", font=font, anchor="mt", align="center")
+		img_draw.multiline_text((width / 2, (num_rows + 3) * tile_size + comment_top_margin), comment, fill="#000000", font=font, anchor="ma", align="center")
 
 	return page_img
 
@@ -201,6 +203,8 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Opt
 	max_comment_height = 0
 	display_comment = False
 
+	temp_draw = ImageDraw.Draw(Image.new("RGB", (width, 1)))
+
 	for x in range(start, end):
 		field = pages[x].get_field()
 		operation = pages[x].operation
@@ -216,25 +220,26 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Opt
 
 		if comment is not None and comment != "" and is_comment:
 			display_comment = True
-			comment = text_wrap(comment, font, width)
-			max_comment_height = max(font.getbbox(comment)[3] - font.getbbox(comment)[1], max_comment_height)
+			comment = text_wrap(comment, font, width - 2 * comment_side_margin)
+			textbbox = temp_draw.multiline_textbbox((width / 2, 0), comment, font, anchor="ma", align="center")
+			max_comment_height = max(textbbox[3] - textbbox[1], max_comment_height)
 
 	max_num_rows = min(23, max_num_rows)
 
 	height = (max_num_rows + 3) * tile_size
 
 	if display_comment:
-		height += max_comment_height + 2 * comment_margin
+		height += max_comment_height + comment_top_margin + comment_bottom_margin
 
 	page_imgs: List[Image.Image] = []
 
 	if background is None:
 		for x in range(start, end):
-			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, display_comment=display_comment))
+			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, display_comment=display_comment, font=font))
 
 	else:
 		for x in range(start, end):
-			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, background, display_comment))
+			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, background, display_comment, font))
 
 	if len(page_imgs) == 1:
 		page_gif = BytesIO()
