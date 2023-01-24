@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict, List, Optional
+from typing import Optional
 from re import findall
 
 from tinyurl_api import get_redirection

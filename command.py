@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Literal
+from typing import Literal
 
 import discord
 from py_fumen import decode

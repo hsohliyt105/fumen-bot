@@ -112,6 +112,9 @@ async def on_message(message: discord.Message):
         if message.author == client.user or message.author.bot:
             return
 
+        if message.content.startswith("!four") or message.content.startswith("!help"):
+            await message.channel.send("The commands with actual messages are depricated now. Please use the newer slash commands! ")
+
         else:
             fumen_found = get_fumen(message.content)
             tinyurl = get_tinyurl(message.content)
