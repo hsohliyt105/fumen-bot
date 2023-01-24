@@ -5,34 +5,22 @@ from re import findall
 
 from tinyurl_api import get_redirection
 
-def get_fumen(strings: List[str]) -> str:
-    tinyurl = get_tinyurl(strings)
+def get_fumen(string: str) -> Optional[str]:
+    tinyurl = get_tinyurl(string)
 
     if tinyurl is not None:
         try:
-            strings.append(get_redirection(tinyurl))
+            string += " " + get_redirection(tinyurl)
 
         except ValueError:
             pass
+        
+    found = findall('([vmd](110|115)@[\w+/?]+)', string)
 
-    for string in strings:
-        found = findall('([vmd](110|115)@[\w+/?]+)', string)
-
-        if len(found) > 0:
-            return found[0][0]
+    if len(found) > 0:
+        return found[0][0]
 
     return None
-
-def get_options(strings: List[str]) -> Dict:
-    result = {}
-
-    for string in strings:
-        found = findall('(.+)=(.+)', string)
-
-        if len(found) > 0:
-            result[found[0][0].lower()] = found[0][1].lower()
-
-    return result
 
 def is_colour_code(string: str) -> bool:
     if string[0] != "#" or len(string) != 7:
@@ -48,11 +36,10 @@ def is_colour_code(string: str) -> bool:
     except:
        return False
 
-def get_tinyurl(strings: List[str]) -> Optional[str]:
-    for string in strings:
-        found = findall('(https://(tinyurl\.com|tiny\.one|rotf\.lol)/[^ \n]*)', string)
+def get_tinyurl(string: str) -> Optional[str]:
+    found = findall('(https://(tinyurl\.com|tiny\.one|rotf\.lol)/[^ \n]*)', string)
 
-        if len(found) > 0:
-            return found[0][0]
+    if len(found) > 0:
+        return found[0][0]
 
     return None

@@ -69,14 +69,14 @@ def get_max_num_rows(field: Field) -> int:
 
 	return num_rows
 
-def text_wrap(text, font, max_width):
+def text_wrap(text, font: ImageFont.FreeTypeFont, max_width):
     lines = []
 
-    if font.getsize(text)[0] <= max_width:
+    if font.getlength(text) <= max_width:
         return text
 
     for text_line in text.split("\n"):
-        if font.getsize(text_line)[0] <= max_width:
+        if font.getlength(text_line) <= max_width:
             lines.append(text_line)
 
         else:
@@ -84,7 +84,7 @@ def text_wrap(text, font, max_width):
             line = ""
             for i in range(len(text_line)):
                 line = text_line[prev_i:i+1]
-                if font.getsize(line)[0] > max_width:
+                if font.getlength(line) > max_width:
                     lines.append(text_line[prev_i:i])
                     prev_i = i
                     continue
@@ -248,7 +248,7 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Opt
 
 	else:
 		page_gif = BytesIO()
-		page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=2)
+		page_imgs[0].convert("RGB").save(page_gif, format="GIF", save_all=True, append_images=[page.convert("RGB") for page in page_imgs[1:]], duration=duration, loop=0, disposal=2)
 		page_gif.seek(0)
 
 	return page_gif
