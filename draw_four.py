@@ -21,7 +21,7 @@ colours = {
 		"O": { "normal": '#f7d33e', "light": '#fff952', "clear": '#f9de49' },
 		"X": { "normal": '#686868', "light": '#949494', "clear": '#848484' },
 		"Empty": { "normal": '#ffffff' },
-		"Shadow": { "normal": '#6f6f6f17' }
+		"Shadow": { "normal": '#6f6f6f1c' } # original colour is #6f6f6f17, but i changed because PIL gives errorneous results
 	},
 	"dark": {
 		"I": { "normal": '#42afe1', "light": '#6ceaff', "clear": '#5cc7f9' },
@@ -96,7 +96,7 @@ def text_wrap(text, font: ImageFont.FreeTypeFont, max_width):
 
     return wrapped_text
 
-def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparent: bool = True, theme: str = "dark", background: str = None, display_comment: bool = False, font: ImageFont.FreeTypeFont = None) -> Image.Image:
+def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparency: bool = True, theme: str = "dark", background: str = None, display_comment: bool = False, font: ImageFont.FreeTypeFont = None) -> Image.Image:
 	theme = theme.lower()
 	if theme != "dark" and theme != "light":
 		raise ValueError
@@ -120,7 +120,7 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 	if display_comment: 
 		comment = text_wrap(comment, font, width - 2 * comment_side_margin)
 
-	if transparent:
+	if transparency:
 		page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
 	elif background is None:
 		page_img = Image.new("RGBA", (width, height), colours[theme]["Empty"]["normal"])
@@ -185,11 +185,14 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 
 		img_draw.multiline_text((width / 2, (num_rows + 3) * tile_size + comment_top_margin), comment, fill="#000000", font=font, anchor="ma", align="center")
 
+	if not transparency:
+		page_img = page_img.convert("RGB")
+
 	return page_img
 
-def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Optional[int] = None, transparent: bool = True, duration: int = 500, theme: str = "dark", background: str = None, is_comment: bool = True):
+def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Optional[int] = None, transparency: bool = True, duration: int = 500, theme: str = "dark", background: str = None, is_comment: bool = True):
 	if len(pages) > 1:
-		transparent = False
+		transparency = False
 
 	theme = theme.lower()
 	if theme != "dark" and theme != "light":
@@ -235,11 +238,11 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Opt
 
 	if background is None:
 		for x in range(start, end):
-			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, display_comment=display_comment, font=font))
+			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparency, theme, display_comment=display_comment, font=font))
 
 	else:
 		for x in range(start, end):
-			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparent, theme, background, display_comment, font))
+			page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparency, theme, background, display_comment, font))
 
 	if len(page_imgs) == 1:
 		page_gif = BytesIO()
@@ -248,7 +251,7 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Opt
 
 	else:
 		page_gif = BytesIO()
-		page_imgs[0].convert("RGB").save(page_gif, format="GIF", save_all=True, append_images=[page.convert("RGB") for page in page_imgs[1:]], duration=duration, loop=0, disposal=2)
+		page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=1)
 		page_gif.seek(0)
 
 	return page_gif

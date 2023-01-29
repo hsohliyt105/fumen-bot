@@ -2,8 +2,10 @@
 
 from typing import Optional
 from re import findall
+from datetime import datetime
 
 from tinyurl_api import get_redirection
+import discord
 
 def get_fumen(string: str) -> Optional[str]:
     tinyurl = get_tinyurl(string)
@@ -43,3 +45,15 @@ def get_tinyurl(string: str) -> Optional[str]:
         return found[0][0]
 
     return None
+
+def write_log_inter(interaction: discord.Interaction):
+    with open("general.log", "a", encoding="utf-8") as general_log_f:
+        general_log_f.write(f"{datetime.now()} {interaction.guild} {interaction.channel} {interaction.user} {interaction.data}\n")
+
+def write_log_message(message: discord.Message):
+    if len(message.embeds) > 0:
+        with open("general.log", "a", encoding="utf-8") as general_log_f:
+            general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content} title: {message.embeds[0].title} description: {message.embeds[0].description} fields: {message.embeds[0].fields} footer: {message.embeds[0].footer}\n")
+    else: 
+        with open("general.log", "a", encoding="utf-8") as general_log_f:
+            general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n")

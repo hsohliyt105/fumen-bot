@@ -30,7 +30,9 @@ class Commands():
             await send("Please input correct background colour! ")
             return
 
-        f = draw_fumens(pages, duration=duration*1000, transparent=transparency, theme=theme, background=background, is_comment=comment)
+        response = await send("Drawing the image... ")
+
+        f = draw_fumens(pages, duration=duration*1000, transparency=transparency, theme=theme, background=background, is_comment=comment)
 
         image = discord.File(f)
         if len(pages) == 1:
@@ -44,5 +46,23 @@ class Commands():
             tinyurl = make_tinyurl(base_url + fumen)
 
         await send(tinyurl, file=image)
+
+        return
+
+    async def sync(interaction: discord.Interaction, client: discord.Client, tree: discord.app_commands.CommandTree):
+        if interaction.user == client.application.owner:
+            await tree.sync(guild=interaction.guild)
+            await interaction.response.send_message("Sync complete!", ephemeral=True)
+        else:
+            await interaction.response.send_message("This is only allowed for the owner of this bot!", ephemeral=True)
+
+        return
+
+    async def sync_all(interaction: discord.Interaction, client: discord.Client, tree: discord.app_commands.CommandTree):
+        if interaction.user == client.application.owner:
+            await tree.sync()
+            await interaction.response.send_message("Sync complete!", ephemeral=True)
+        else:
+            await interaction.response.send_message("This is only allowed for the owner of this bot!", ephemeral=True)
 
         return

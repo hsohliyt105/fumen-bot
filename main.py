@@ -3,6 +3,8 @@
 """
 To do 
 
+work around to fix gif graphical errors
+
 make my sql functions
 
 opener library 
@@ -23,7 +25,7 @@ from dotenv import load_dotenv
 
 from command import Commands
 import helper
-from functions import get_fumen, get_tinyurl
+from functions import get_fumen, get_tinyurl, write_log_inter, write_log_message
 
 abs_path = abspath(__file__)
 dir_name = dirname(abs_path)
@@ -62,24 +64,17 @@ async def change_presence():
                                comment="Whether to show the comment section")
 async def four(interaction: discord.Interaction, fumen_string: str, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
     await Commands.four(interaction, fumen_string, duration, transparency, background, theme, comment)
-
     return
 
-@tree.command(name="sync", description="Syncs the commands in this guild")
+@tree.command(name="sync", description="Syncs the commands in this guild, only for the owner of the bot")
 async def sync(interaction: discord.Interaction):
-    if interaction.user == client.application.owner:
-        await tree.sync(guild=interaction.guild)
-        await interaction.response.send_message("Sync complete!", ephemeral=True)
-    else:
-        await interaction.response.send_message("This is only allowed for the owner of this bot!", ephemeral=True)
+    await Commands.sync(interaction, client, tree)
+    return
 
-@tree.command(name="sync_all", description="Syncs the commands globally")
+@tree.command(name="sync_all", description="Syncs the commands globally, only for the owner of the bot")
 async def sync_all(interaction: discord.Interaction):
-    if interaction.user == client.application.owner:
-        await tree.sync()
-        await interaction.response.send_message("Sync complete!", ephemeral=True)
-    else:
-        await interaction.response.send_message("This is only allowed for the owner of this bot!", ephemeral=True)
+    await Commands.sync_all(interaction, client, tree)
+    return
 
 # Start up
 @client.event
@@ -102,35 +97,26 @@ async def on_ready():
 async def on_message(message: discord.Message):
     try:
         if message.author == client.user:
-            if len(message.embeds) > 0:
-                with open("general.log", "a", encoding="utf-8") as general_log_f:
-                    general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} title: {message.embeds[0].title} description: {message.embeds[0].description} fields: {message.embeds[0].fields} footer: {message.embeds[0].footer}\n")
-            else: 
-                with open("general.log", "a", encoding="utf-8") as general_log_f:
-                    general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n")
+            write_log_message(message)
         
         if message.author == client.user or message.author.bot:
             return
 
         if message.content.startswith("!four") or message.content.startswith("!help"):
             await message.channel.send("The commands with actual messages are depricated now. Please use the newer slash commands! ")
+            write_log_message(message)
 
         else:
             fumen_found = get_fumen(message.content)
             tinyurl = get_tinyurl(message.content)
 
             if fumen_found is not None:
-                if fumen_found == get_fumen(tinyurl):
+                if tinyurl is not None and fumen_found == get_fumen(tinyurl):
                     fumen_found = tinyurl
 
                 await Commands.four(message, fumen_found)
 
-            if len(message.embeds) > 0:
-                with open("general.log", "a", encoding="utf-8") as general_log_f:
-                    general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} title: {message.embeds[0].title} description: {message.embeds[0].description} fields: {message.embeds[0].fields} footer: {message.embeds[0].footer}\n")
-            else: 
-                with open("general.log", "a", encoding="utf-8") as general_log_f:
-                    general_log_f.write(f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n")
+                write_log_message(message)
 
             return
 
@@ -139,7 +125,7 @@ async def on_message(message: discord.Message):
             err_log = f"{datetime.now()} {message.guild} {message.channel} {message.author} {message.content}\n{format_exc()}\n"
             f.write(err_log)
             f.close()
-        await message.channel.send(f"A permission error occurred! Reinvite this bot via this link: (https://discord.com/oauth2/authorize?client_id={client.application_id} *This error has been automatically logged.*")
+        await message.channel.send(f"A permission error occurred! Reinvite this bot via this link: https://discord.com/oauth2/authorize?client_id={client.application_id} *This error has been automatically logged.*")
 
     except:
         with open("error.log", "a", encoding="utf-8") as f:
@@ -148,6 +134,12 @@ async def on_message(message: discord.Message):
             f.close()
         await message.channel.send("An error occurred! *This error has been automatically logged.*")
 
+    return
+
+# Interaction events
+@client.event
+async def on_interaction(interaction: discord.Interaction):
+    write_log_inter(interaction)
     return
 
 client.run(DISCORD_TOKEN)
