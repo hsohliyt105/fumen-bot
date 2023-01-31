@@ -11,7 +11,7 @@ abs_path = abspath(__file__)
 dir_name = dirname(abs_path)
 
 colours = {
-	"light": {
+        "light": {
 		"I": { "normal": '#41afde', "light": '#43d3ff', "clear": '#3bbcf5' },
 		"T": { "normal": '#b451ac', "light": '#e56add', "clear": '#cc5fc4' },
 		"S": { "normal": '#66c65c', "light": '#88ee86', "clear": '#72d467' },
@@ -184,10 +184,7 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 					fill="#FFFFFF")
 
 		img_draw.multiline_text((width / 2, (num_rows + 3) * tile_size + comment_top_margin), comment, fill="#000000", font=font, anchor="ma", align="center")
-
-	if not transparency:
-		page_img = page_img.convert("RGB")
-
+    
 	return page_img
 
 def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Optional[int] = None, transparency: bool = True, duration: int = 500, theme: str = "dark", background: str = None, is_comment: bool = True):
@@ -251,7 +248,7 @@ def draw_fumens(pages: List[Page], tile_size: int = 20, start: int = 0, end: Opt
 
 	else:
 		page_gif = BytesIO()
-		page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=1)
+		page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=2)
 		page_gif.seek(0)
 
 	return page_gif

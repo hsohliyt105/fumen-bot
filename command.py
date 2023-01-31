@@ -10,11 +10,13 @@ from functions import get_fumen, is_colour_code, get_tinyurl
 from tinyurl_api import make_tinyurl
 
 class Commands():
-    async def four(interaction: discord.Interaction | discord.Message, fumen_string: str, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True): 
-        if isinstance(interaction, discord.Interaction):
-            send = interaction.response.send_message
+    async def four(interaction: discord.Interaction | discord.Message, fumen_string: str, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
+        is_interaction = isinstance(interaction, discord.Interaction)
+    
+        if is_interaction:
+            send = interaction.followup.send
 
-        if isinstance(interaction, discord.Message):
+        else:
             send = interaction.channel.send
         
         fumen = get_fumen(fumen_string)
@@ -22,15 +24,17 @@ class Commands():
 
         try:
             pages = decode(fumen)
+            
         except:
-            await send("Please input correct fumen / url / tinyurl! ")
+            await send("Please input correct fumen / url / tinyurl! ", ephemeral=True)
             return
 
         if background is not None and not is_colour_code(background):
-            await send("Please input correct background colour! ")
+            await send("Please input correct background colour! ", ephemeral=True)
             return
-
-        response = await send("Drawing the image... ")
+            
+        if is_interaction:
+            await interaction.response.defer()
 
         f = draw_fumens(pages, duration=duration*1000, transparency=transparency, theme=theme, background=background, is_comment=comment)
 
