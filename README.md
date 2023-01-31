@@ -43,3 +43,7 @@ Supports comment section
 
 ## 0.1.0
 Slash Command is supported
+
+## 0.1.1
+Fixed graphic errors
+Fixed timeout error
