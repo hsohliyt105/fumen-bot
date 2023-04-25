@@ -3,13 +3,21 @@
 """
 To do 
 
-work around to fix gif graphical errors
+help command
 
-make my sql functions
+turn on/off commands
+
+  - setting to not respond automatically 
+
+  - make my sql functions
+
+work around to fix gif graphical errors
 
 opener library 
 
 perfect clear library
+
+meme commands?
 """
 
 from os import chdir, getenv
@@ -25,7 +33,7 @@ from dotenv import load_dotenv
 
 from command import Commands
 import helper
-from functions import get_fumen, get_tinyurl, write_log_inter, write_log_message
+from functions import get_fumens, write_log_inter, write_log_message
 
 abs_path = abspath(__file__)
 dir_name = dirname(abs_path)
@@ -35,7 +43,7 @@ with open("general.log", "a", encoding="utf-8") as general_log_f:
     general_log_f.write(f"{datetime.now()} Started.\n")
 
 load_dotenv(encoding="UTF-8")
-DISCORD_TOKEN = getenv("DISCORD_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
+DISCORD_TOKEN = getenv("TEST_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -64,6 +72,22 @@ async def change_presence():
                                comment="Whether to show the comment section")
 async def four(interaction: discord.Interaction, fumen_string: str, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
     await Commands.four(interaction, fumen_string, duration, transparency, background, theme, comment)
+    return
+
+@tree.command(name="set", description="Sets default options for the user")
+@discord.app_commands.describe(auto="Whether to automatically respond to the user's fumen link. ", 
+                               duration="Druration of each frame in seconds",
+                               transparency="Transparency of the background, only available in png", 
+                               background="Background colour in hex colour code",
+                               theme="Theme colour of background (if not specified,) annd minos",
+                               comment="Whether to show the comment section")
+async def set(interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
+    await Commands.set(interaction, auto, duration, transparency, background, theme, comment)
+    return
+
+@tree.command(name="set_default", description="Restores options to default for the user")
+async def set_default(interaction: discord.Interaction):
+    await Commands.set(interaction, True, 0.5, True, None, "dark", True)
     return
 
 @tree.command(name="sync", description="Syncs the commands in this guild, only for the owner of the bot")
@@ -107,14 +131,10 @@ async def on_message(message: discord.Message):
             write_log_message(message)
 
         else:
-            fumen_found = get_fumen(message.content)
-            tinyurl = get_tinyurl(message.content)
+            fumens = get_fumens(message.content)
 
-            if fumen_found is not None:
-                if tinyurl is not None and fumen_found == get_fumen(tinyurl):
-                    fumen_found = tinyurl
-
-                await Commands.four(message, fumen_found)
+            if fumens is not None:
+                await Commands.four(message, message.content)
 
                 write_log_message(message)
 

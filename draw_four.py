@@ -32,7 +32,7 @@ colours = {
 		"J": { "normal": '#1165b5', "light": '#339bff', "clear": '#2c84da' },
 		"O": { "normal": '#f6d03c', "light": '#ffff7f', "clear": '#f9df6c' },
 		"X": { "normal": '#868686', "light": '#dddddd', "clear": '#bdbdbd' },
-		"Empty": { "normal": '#36393f' },
+		"Empty": { "normal": '#313338' },
 		"Shadow": { "normal": '#09090938' }
 	}
 }
@@ -162,7 +162,7 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 					clear = False
 
 			if field.at(i, j) != "_":
-				if clear:
+				if clear and (page.flags.lock is not None or page.flags.lock):
 					colour = "clear"
 
 				else:
