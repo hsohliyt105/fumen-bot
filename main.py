@@ -74,22 +74,6 @@ async def four(interaction: discord.Interaction, fumen_string: str, duration: fl
     await Commands.four(interaction, fumen_string, duration, transparency, background, theme, comment)
     return
 
-@tree.command(name="set", description="Sets default options for the user")
-@discord.app_commands.describe(auto="Whether to automatically respond to the user's fumen link. ", 
-                               duration="Druration of each frame in seconds",
-                               transparency="Transparency of the background, only available in png", 
-                               background="Background colour in hex colour code",
-                               theme="Theme colour of background (if not specified,) annd minos",
-                               comment="Whether to show the comment section")
-async def set(interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
-    await Commands.set(interaction, auto, duration, transparency, background, theme, comment)
-    return
-
-@tree.command(name="set_default", description="Restores options to default for the user")
-async def set_default(interaction: discord.Interaction):
-    await Commands.set(interaction, True, 0.5, True, None, "dark", True)
-    return
-
 @tree.command(name="sync", description="Syncs the commands in this guild, only for the owner of the bot")
 async def sync(interaction: discord.Interaction):
     await Commands.sync(interaction, client, tree)
