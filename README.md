@@ -47,3 +47,7 @@ Slash Command is supported
 ## 0.1.1
 Fixed graphic errors
 Fixed timeout error
+
+## 0.1.2
+Fixed minor bugs
+Accepts multiple fumens
