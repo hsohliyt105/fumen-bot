@@ -1,25 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-To do 
-
-help command
-
-turn on/off commands
-
-  - setting to not respond automatically 
-
-  - make my sql functions
-
-work around to fix gif graphical errors
-
-opener library 
-
-perfect clear library
-
-meme commands?
-"""
-
 from os import chdir, getenv
 from os.path import abspath, dirname
 from datetime import datetime
@@ -43,7 +23,7 @@ with open("general.log", "a", encoding="utf-8") as general_log_f:
     general_log_f.write(f"{datetime.now()} Started.\n")
 
 load_dotenv(encoding="UTF-8")
-DISCORD_TOKEN = getenv("TEST_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
+DISCORD_TOKEN = getenv("DISCORD_TOKEN") # TEST_TOKEN or DISCORD_TOKEN
 
 intents = discord.Intents.default()
 intents.messages = True
