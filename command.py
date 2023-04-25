@@ -86,18 +86,6 @@ class Commands():
 
         return
 
-    async def help(interaction: discord.Interaction | discord.Message):
-        is_interaction = isinstance(interaction, discord.Interaction)
-
-        if is_interaction:
-            await interaction.response.defer()
-            send = interaction.followup.send
-
-        else:
-            send = interaction.channel.send
-
-        return
-
     async def sync(interaction: discord.Interaction, client: discord.Client, tree: discord.app_commands.CommandTree):
         if interaction.user == client.application.owner:
             await tree.sync(guild=interaction.guild)
@@ -114,17 +102,4 @@ class Commands():
         else:
             await interaction.response.send_message("This is only allowed for the owner of this bot!", ephemeral=True)
 
-        return
-
-    async def set(interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
-        if background is not None and not is_colour_code(background):
-            await interaction.response.send("Please input correct background colour! ", ephemeral=True)
-            return
-
-        if duration <= 0:
-            await interaction.response.send("Please input correct duration! (duration > 0) ", ephemeral=True)
-            return
-
-        sql.save_user(interaction.user)
-        
         return
