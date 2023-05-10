@@ -87,10 +87,9 @@ def text_wrap(text, font: ImageFont.FreeTypeFont, max_width):
                 if font.getlength(line) > max_width:
                     lines.append(text_line[prev_i:i])
                     prev_i = i
-                    continue
 
                 if i == len(text_line) - 1 :
-                    lines.append(text_line[prev_i:i])
+                    lines.append(text_line[prev_i:i+1])
 
     wrapped_text = "\n".join(lines)
 
