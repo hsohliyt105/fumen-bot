@@ -57,3 +57,4 @@ Fixed minor issues in draw_fumen
 
 ## 0.1.4
 Fixed minor errors in exception handling
+Added blacklisting/whitelisting
