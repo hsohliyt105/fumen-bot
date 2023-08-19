@@ -51,3 +51,9 @@ Fixed timeout error
 ## 0.1.2
 Fixed minor bugs
 Accepts multiple fumens
+
+## 0.1.3
+Fixed minor issues in draw_fumen
+
+## 0.1.4
+Fixed minor errors in exception handling
