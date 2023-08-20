@@ -5,7 +5,7 @@ from py_fumen import decode
 
 from helper import FourDefault, FourSettings
 from draw_four import draw_fumens
-from functions import get_my_colour, is_colour_code, get_tinyurls, write_error, load_four_settings
+from functions import get_my_colour, is_colour_code, get_tinyurls, get_fumens, write_error, load_four_settings
 from tinyurl_api import make_tinyurl
 import sql
 
