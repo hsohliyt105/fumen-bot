@@ -18,18 +18,13 @@ def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency
     cur.execute(sql) 
     result = cur.fetchall()
 
-    if background is not None:
-        background = f"'{background}'"
-    else:
-        background = "NULL"
-
     if len(result) == 0:
         sql = f"INSERT INTO users(user_id, auto, duration, transparency, background, theme, comment) VALUES({user.id}, {auto}, {duration}, {transparency}, '{background}', '{theme}', {comment})"
         cur.execute(sql)
         conn.commit()
 
     else:
-        sql = f"UPDATE users SET auto={auto}, duration={duration}, transparency={transparency}, background={background}, theme='{theme}', comment={comment} WHERE user_id={user.id}"
+        sql = f"UPDATE users SET auto={auto}, duration={duration}, transparency={transparency}, background='{background}', theme='{theme}', comment={comment} WHERE user_id={user.id}"
         cur.execute(sql)
         conn.commit()
 
