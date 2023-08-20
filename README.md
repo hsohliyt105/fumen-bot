@@ -13,19 +13,54 @@ Sends an [four](https://four.lol/) formatted image containing the fumen.
 ### Format
 `/four <fumen string / fumen url / tinyurl> [options]`
 
-### 
+### Options
 Option list: 
-
-`transparency: True/False` Sets the transparency of the background. Only supported in png. Default is `yes` for png, and `no` for gif.
-
-`theme: dark/light` Sets the theme of the image. Default is `dark`.
 
 `duration: <delay per frame in seconds>` Sets the duration of each frame in gif, in seconds. Default is `0.5`.
 
 `background: <hex colour code>` Sets the colour of the background. Default is determined by the theme.
 
+`transparency: True/False` Sets the transparency of the background. Only supported in png. Default is `yes` for png, and `no` for gif.
+
+`theme: dark/light` Sets the theme of the image. Default is `dark`.
+
+`comment: True/False` Whether to show the comment section. Default is True.`
+
 ### Example
-`/four v115@HhwhglQpAtwwg0Q4C8JewhglQpAtwwg0Q4A8LeAgH`
+`/four fumen_string v115@HhwhglQpAtwwg0Q4C8JewhglQpAtwwg0Q4A8LeAgH`
+
+## /set
+Sets default options for the user.
+
+### Format
+`/set [options]`
+
+### Options
+Option list: 
+
+`auto: True/False` Whether to automatically respond to the user's fumen link. Default is True.
+
+`duration: <delay per frame in seconds>` Sets the duration of each frame in gif, in seconds. Default is `0.5`.
+
+`background: <hex colour code>` Sets the colour of the background. Default is determined by the theme.
+
+`transparency: True/False` Sets the transparency of the background. Only supported in png. Default is `yes` for png, and `no` for gif.
+
+`theme: dark/light` Sets the theme of the image. Default is `dark`.
+
+`comment: True/False` Whether to show the comment section. Default is True.
+
+### Example
+`/set auto False`
+
+## /set_default
+Restores settings to default for the user.
+
+## /delete_set
+Deletes the user settings in the database.
+
+## /check_set
+Check the current settings.
 
 # Update
 
@@ -58,3 +93,6 @@ Fixed minor issues in draw_fumen
 ## 0.1.4
 Fixed minor errors in exception handling
 Added blacklisting/whitelisting
+
+## 0.1.5
+Added settings functions
