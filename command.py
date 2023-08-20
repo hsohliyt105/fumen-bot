@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from typing import Literal
-
 import discord
 from py_fumen import decode
 
+from helper import FourDefault, FourSettings
 from draw_four import draw_fumens
-from functions import get_fumens, is_colour_code, get_tinyurls, write_error
+from functions import get_my_colour, is_colour_code, get_tinyurls, write_error, load_four_settings
 from tinyurl_api import make_tinyurl
 import sql
 
 class Commands():
-    async def four(interaction: discord.Interaction | discord.Message, fumen_string: str, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
+    async def four(interaction: discord.Interaction | discord.Message, fumen_string: str, settings: FourSettings = FourDefault()):
+        user = interaction.user if isinstance(interaction, discord.Interaction) else interaction.author
+        settings = load_four_settings(user, settings)
+        
         is_interaction = isinstance(interaction, discord.Interaction)
         
         if is_interaction:
@@ -42,16 +44,16 @@ class Commands():
                 await send("Please input correct fumen / url / tinyurl! ")
                 return
 
-            if background is not None and not is_colour_code(background):
+            if not is_colour_code(settings.background):
                 await send("Please input correct background colour! ")
                 return
 
-            if duration <= 0:
+            if settings.duration <= 0:
                 await send("Please input correct duration! (duration > 0) ")
                 return
 
             try:
-                f = draw_fumens(pages, duration=duration*1000, transparency=transparency, theme=theme, background=background, is_comment=comment)
+                f = draw_fumens(pages, duration=settings.duration*1000, transparency=settings.transparency, theme=settings.theme, background=settings.background, is_comment=settings.comment)
 
                 image = discord.File(f)
                 if len(pages) == 1:
@@ -86,18 +88,6 @@ class Commands():
 
         return
 
-    async def help(interaction: discord.Interaction | discord.Message):
-        is_interaction = isinstance(interaction, discord.Interaction)
-
-        if is_interaction:
-            await interaction.response.defer()
-            send = interaction.followup.send
-
-        else:
-            send = interaction.channel.send
-
-        return
-
     async def sync(interaction: discord.Interaction, client: discord.Client, tree: discord.app_commands.CommandTree):
         if interaction.user == client.application.owner:
             await tree.sync(guild=interaction.guild)
@@ -116,15 +106,34 @@ class Commands():
 
         return
 
-    async def set(interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
-        if background is not None and not is_colour_code(background):
-            await interaction.response.send("Please input correct background colour! ", ephemeral=True)
-            return
-
-        if duration <= 0:
-            await interaction.response.send("Please input correct duration! (duration > 0) ", ephemeral=True)
-            return
-
-        sql.save_user(interaction.user, auto, duration, transparency, background, theme, comment)
+    async def set(interaction: discord.Interaction, settings: FourSettings = FourDefault()):
+        await interaction.response.defer()
+        settings = load_four_settings(interaction.user, settings)
         
+        if not is_colour_code(settings.background):
+            await interaction.followup.send("Please input correct background colour! ", ephemeral=True)
+            return
+
+        if settings.duration <= 0:
+            await interaction.followup.send("Please input correct duration! (duration > 0) ", ephemeral=True)
+            return
+
+        sql.save_user(interaction.user, settings.auto, settings.duration, settings.transparency, settings.background, settings.theme, settings.comment)
+        await interaction.followup.send("Setting complete! ", ephemeral=True)
+        
+        return
+
+    async def set_delete(interaction: discord.Interaction):
+        sql.delete_user(interaction.user)
+        await interaction.response.send_message("Deleting complete! ", ephemeral=True)
+        return
+
+    async def set_check(interaction: discord.Interaction):
+        settings_dict = sql.load_user(interaction.user)
+
+        embed = discord.Embed(title=f"{interaction.user.display_name}'s Settings", colour=get_my_colour(interaction.client.user, interaction.channel))
+        for key, value in settings_dict.items():
+            embed.add_field(name=key, value=value)
+
+        await interaction.response.send_message(embed=embed)
         return

@@ -121,7 +121,7 @@ def draw(page: Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optio
 
 	if transparency:
 		page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
-	elif background is None:
+	elif background == "default":
 		page_img = Image.new("RGBA", (width, height), colours[theme]["Empty"]["normal"])
 	else:
 		page_img = Image.new("RGBA", (width, height), background)

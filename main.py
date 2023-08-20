@@ -31,7 +31,9 @@ from dotenv import load_dotenv
 
 from command import Commands
 import helper
+from helper import FourDefault, FourSettings
 from functions import get_fumens, write_log_inter, write_log_message
+from sql import load_user
 
 abs_path = abspath(__file__)
 dir_name = dirname(abs_path)
@@ -65,27 +67,39 @@ async def change_presence():
 @discord.app_commands.describe(fumen_string="The fumen / url / tinyurl to display", 
                                duration="Druration of each frame in seconds",
                                transparency="Transparency of the background, only available in png", 
-                               background="Background colour in hex colour code",
+                               background="Background colour in hex colour code (#xxxxxx)",
                                theme="Theme colour of background (if not specified,) annd minos",
                                comment="Whether to show the comment section")
-async def four(interaction: discord.Interaction, fumen_string: str, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
-    await Commands.four(interaction, fumen_string, duration, transparency, background, theme, comment)
+async def four(interaction: discord.Interaction, fumen_string: str, duration: float = None, transparency: bool = None, background: str = None, theme: Literal["light", "dark"] = None, comment: bool = None):
+    settings = FourSettings(duration=duration, transparency=transparency, background=background, theme=theme, comment=comment)
+    await Commands.four(interaction, fumen_string, settings)
     return
 
 @tree.command(name="set", description="Sets default options for the user")
 @discord.app_commands.describe(auto="Whether to automatically respond to the user's fumen link. ", 
                                duration="Druration of each frame in seconds",
                                transparency="Transparency of the background, only available in png", 
-                               background="Background colour in hex colour code",
+                               background="Background colour in hex colour code (#xxxxxx). To default to the theme colour, type default. ",
                                theme="Theme colour of background (if not specified,) annd minos",
                                comment="Whether to show the comment section")
-async def set(interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = None, theme: Literal["light", "dark"] = "dark", comment: bool = True):
-    await Commands.set(interaction, auto, duration, transparency, background, theme, comment)
+async def set(interaction: discord.Interaction, auto: bool = None, duration: float = None, transparency: bool = None, background: str = None, theme: Literal["light", "dark"] = None, comment: bool = None):
+    settings = FourSettings(auto=auto, duration=duration, transparency=transparency, background=background, theme=theme, comment=comment)
+    await Commands.set(interaction, settings)
     return
 
 @tree.command(name="set_default", description="Restores options to default for the user")
 async def set_default(interaction: discord.Interaction):
-    await Commands.set(interaction, True, 0.5, True, None, "dark", True)
+    await Commands.set(interaction, FourDefault())
+    return
+
+@tree.command(name="set_delete", description="Deletes the user settings in the database. for test.")
+async def set_delete(interaction: discord.Interaction):
+    await Commands.set_delete(interaction)
+    return
+
+@tree.command(name="set_check", description="Check the current settings")
+async def set_delete(interaction: discord.Interaction):
+    await Commands.set_check(interaction)
     return
 
 @tree.command(name="sync", description="Syncs the commands in this guild, only for the owner of the bot")
@@ -138,8 +152,8 @@ async def on_message(message: discord.Message):
         else:
             fumens = get_fumens(message.content)
 
-            if fumens is not None:
-                await Commands.four(message, message.content)
+            if fumens is not None and (load_user(message.author) is None or load_user(message.author)['auto']):
+                await Commands.four(message, message.content, FourSettings())
 
                 write_log_message(message)
 

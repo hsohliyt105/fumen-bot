@@ -14,13 +14,22 @@ def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency
     conn = connect(host="localhost", user="root", db="fumen_bot", password=MYSQL_PASSWORD, charset="utf8", cursorclass=cursors.DictCursor)
     cur = conn.cursor()
 
-    try:
+    sql = f"SELECT * FROM users WHERE user_id={user.id}"
+    cur.execute(sql) 
+    result = cur.fetchall()
+
+    if background is not None:
+        background = f"'{background}'"
+    else:
+        background = "NULL"
+
+    if len(result) == 0:
         sql = f"INSERT INTO users(user_id, auto, duration, transparency, background, theme, comment) VALUES({user.id}, {auto}, {duration}, {transparency}, '{background}', '{theme}', {comment})"
         cur.execute(sql)
         conn.commit()
 
-    except:
-        sql = f"UPDATE users SET auto='{auto}', duration='{duration}', transparency='{transparency}', background='{background}', theme='{theme}', comment='{comment}' WHERE discord_id={user.id}"
+    else:
+        sql = f"UPDATE users SET auto={auto}, duration={duration}, transparency={transparency}, background={background}, theme='{theme}', comment={comment} WHERE user_id={user.id}"
         cur.execute(sql)
         conn.commit()
 
@@ -28,7 +37,7 @@ def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency
 
     return
 
-def load_user(user: User):
+def load_user(user: User) -> dict:
     conn = connect(host="localhost", user="root", db="fumen_bot", password=MYSQL_PASSWORD, charset="utf8", cursorclass=cursors.DictCursor)
     cur = conn.cursor()
 
