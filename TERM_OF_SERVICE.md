@@ -7,5 +7,5 @@ Before using any of the Features, you must first agree to these Terms. By access
 by otherwise using them, you expressly confirm that you fully and irrevocably agree to these Terms.
 
 We reserve the right, at our sole discretion, to modify or replace the Terms at any time. The most
-current version of these Terms will be posted on the Github Repository of the Bot ([https://github.com/hsohliyt105/fumen-bot/blob/main/TERM_OF_SERVICE.md]). You shall be responsible for
+current version of these Terms will be posted on the Github Repository of the Bot (https://github.com/hsohliyt105/fumen-bot/blob/main/TERM_OF_SERVICE.md). You shall be responsible for
 reviewing and becoming familiar with any such modifications.You will be deemed to have accepted all modifications and revisions of the Terms by continuing to use all or part of the Features.
