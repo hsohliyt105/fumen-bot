@@ -19,10 +19,12 @@ You hereby represent and warrant that you are fully able and competent to enter 
 
 ### Features
 User has access to the Features described on the [README.md](https://github.com/hsohliyt105/fumen-bot/blob/main/README.md), in the form and according to the technical means and functionalities that Fumen Bot deems most appropriate. The main Features offered by Fumen Bot are the following:
-• Saving User preferrences regarding to image creating;
-• Generating Four-formatted images;
-• Generating ohter tetris images;
+
+- Saving User preferrences regarding to image creating;
+- Generating Four-formatted images;
+- Generating ohter tetris images;
 
 ### Intents
 To use the Features, Users shall consent to the Bot Intents, gathering all required data or information in a complete and truthful manner. The Intents required by the Bot are the following:
-• Message Content Intent, required for the bot to receive message content in most messages.
+
+- Message Content Intent, required for the bot to receive message content in most messages.
