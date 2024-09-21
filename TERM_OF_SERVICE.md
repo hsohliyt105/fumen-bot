@@ -18,7 +18,7 @@ Unless specified otherwise in these Terms, the Features are offered by hsohliyt1
 You hereby represent and warrant that you are fully able and competent to enter into the terms, conditions, obligations, affirmations, representations and warranties set forth in these Terms and to abide by and comply with these Terms. You also represent and warrant that you are legally authorized in your jurisdiction to use the Features and to interact with the Features in any way. Finally, you represent and warrant that you are solely responsible for compliance with all applicable laws in your jurisdiction, and release Fumen Bot from any liability in this regard.
 
 ### Features
-User has access to the Features described on the README.md[https://github.com/hsohliyt105/fumen-bot/blob/main/README.md], in the form and according to the technical means and functionalities that Fumen Bot deems most appropriate. The main Features offered by Fumen Bot are the following:
+User has access to the Features described on the [README.md](https://github.com/hsohliyt105/fumen-bot/blob/main/README.md), in the form and according to the technical means and functionalities that Fumen Bot deems most appropriate. The main Features offered by Fumen Bot are the following:
 • Saving User preferrences regarding to image creating;
 • Generating Four-formatted images;
 • Generating ohter tetris images;
