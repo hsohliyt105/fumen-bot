@@ -119,7 +119,7 @@ class Commands():
         return
 
     async def set(self, interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = "", theme: Literal["light", "dark"] = "dark", comment: bool = True):
-        if background is not None and not is_colour_code(background):
+        if background and not is_colour_code(background):
             await interaction.response.send("Please input correct background colour! ", ephemeral=True)
             return
 

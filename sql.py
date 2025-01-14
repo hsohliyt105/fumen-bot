@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from os import getenv
+from os import environ
 from typing import Literal
 
 from discord import User
@@ -8,10 +8,16 @@ from pymysql import connect, cursors
 from dotenv import load_dotenv
 
 load_dotenv(encoding="UTF-8")
-MYSQL_PASSWORD = getenv("MYSQL_PASSWORD")
+
+HOST = "localhost"
+USER = "root"
+DB = "fumen_bot"
+PASSWORD = environ['MYSQL_PASSWORD']
+CHARSET = "utf8"
+CURSORCLASS = cursor.DictCursor
 
 def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = "", theme: Literal["light", "dark"] = "dark", comment: bool = True):
-    conn = connect(host="localhost", user="root", db="fumen_bot", password=MYSQL_PASSWORD, charset="utf8", cursorclass=cursors.DictCursor)
+    conn = connect(host=HOST, user=USER, db=DB, password=PASSWORD, charset=CHARSET, cursorclass=CURSORCLASS)
     cur = conn.cursor()
 
     try:
@@ -29,7 +35,7 @@ def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency
     return
 
 def load_user(user: User):
-    conn = connect(host="localhost", user="root", db="fumen_bot", password=MYSQL_PASSWORD, charset="utf8", cursorclass=cursors.DictCursor)
+    conn = connect(host=HOST, user=USER, db=DB, password=PASSWORD, charset=CHARSET, cursorclass=CURSORCLASS)
     cur = conn.cursor()
 
     sql = f"SELECT * FROM users WHERE user_id={user.id}"
@@ -43,7 +49,7 @@ def load_user(user: User):
     return result[0]
 
 def delete_user(user: User):
-    conn = connect(host="localhost", user="root", db="fumen_bot", password=MYSQL_PASSWORD, charset="utf8", cursorclass=cursors.DictCursor)
+    conn = connect(host=HOST, user=USER, db=DB, password=PASSWORD, charset=CHARSET, cursorclass=CURSORCLASS)
     cur = conn.cursor()
 
     sql = f"DELETE FROM users WHERE user_id={user.id}"

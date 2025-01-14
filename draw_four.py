@@ -90,7 +90,7 @@ def text_wrap(text, font: ImageFont.FreeTypeFont, max_width):
 
     return wrapped_text
 
-def draw(page: py_fumen.Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparency: bool = True, theme: str = "dark", background: str = None, display_comment: bool = False, font: ImageFont.FreeTypeFont = None) -> Image.Image:
+def draw(page: py_fumen.Page, size: Tuple[int, int], tile_size: int = 20, num_rows: Optional[int] = None, transparency: bool = True, theme: str = "dark", background: str = "", display_comment: bool = False, font: ImageFont.FreeTypeFont = None) -> Image.Image:
     theme = theme.lower()
     if theme != "dark" and theme != "light":
         raise ValueError
@@ -116,7 +116,7 @@ def draw(page: py_fumen.Page, size: Tuple[int, int], tile_size: int = 20, num_ro
 
     if transparency:
         page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
-    elif background is None:
+    elif not background:
         page_img = Image.new("RGBA", (width, height), colours[theme]["Empty"]["normal"])
     else:
         page_img = Image.new("RGBA", (width, height), background)
@@ -181,7 +181,7 @@ def draw(page: py_fumen.Page, size: Tuple[int, int], tile_size: int = 20, num_ro
 
     return page_img
 
-def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0, end: Optional[int] = None, transparency: bool = True, duration: int = 500, theme: str = "dark", background: str = None, is_comment: bool = True):
+def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0, end: Optional[int] = None, transparency: bool = True, duration: int = 500, theme: str = "dark", background: str = "", is_comment: bool = True):
     if len(pages) > 1:
         transparency = False
 
@@ -227,7 +227,7 @@ def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0,
 
     page_imgs: List[Image.Image] = []
 
-    if background is None:
+    if not background:
         for x in range(start, end):
             page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparency, theme, display_comment=display_comment, font=font))
 
@@ -241,6 +241,8 @@ def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0,
         page_gif.seek(0)
 
     else:  
+        for i in range(len(page_imgs)):
+            page_imgs[i] = page_imgs[i].convert("RGB")
         page_gif = BytesIO()
         page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=2)
         page_gif.seek(0)

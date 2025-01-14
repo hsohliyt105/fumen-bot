@@ -30,7 +30,7 @@ from dotenv import load_dotenv
 
 import command
 import helper
-from functions import get_fumens, write_log_inter, write_log_message
+from functions import get_fumens, write_log
 
 with open("general.log", "a", encoding="utf-8") as general_log_f:
     general_log_f.write(f"{datetime.now()} Started.\n")
@@ -50,14 +50,6 @@ tree = discord.app_commands.CommandTree(client)
 
 commands = command.Commands()
 
-# Presence change 
-@tasks.loop(seconds=(2*helper.presence_time))
-async def change_presence():
-    await client.change_presence(activity=discord.Game(helper.version))
-    await sleep(helper.presence_time)
-    await client.change_presence(activity=discord.Game(f"working in {len(client.guilds)} servers"))
-    await sleep(helper.presence_time)
-
 @tree.command(name="four", description="Sends an four formatted image containing the fumen")
 @discord.app_commands.describe(fumen_string="The fumen / url / tinyurl to display", 
                                duration="Druration of each frame in seconds",
@@ -68,7 +60,7 @@ async def change_presence():
 async def four(interaction: discord.Interaction, 
                fumen_string: str, duration: float = 0.5, 
                transparency: bool = True, 
-               background: str = None, 
+               background: str = "", 
                theme: Literal["light", "dark"] = "dark", 
                comment: bool = True):
     await commands.four(interaction, fumen_string, duration, transparency, background, theme, comment)
@@ -105,6 +97,14 @@ async def sync_all(interaction: discord.Interaction):
     await commands.sync_all(interaction, client, tree)
     return
 
+# Presence change 
+@tasks.loop(seconds=(2*helper.presence_time))
+async def change_presence():
+    await client.change_presence(activity=discord.Game(helper.version))
+    await sleep(helper.presence_time)
+    await client.change_presence(activity=discord.Game(f"working in {len(client.guilds)} servers"))
+    await sleep(helper.presence_time)
+
 # Start up
 @client.event
 async def on_ready():
@@ -115,7 +115,7 @@ async def on_ready():
 
     print(len(client.guilds))
     
-    await change_presence.start()
+    change_presence.start()
     return
 
 # Message events
@@ -123,7 +123,7 @@ async def on_ready():
 async def on_message(message: discord.Message):
     try:
         if message.author == client.user:
-            write_log_message(message)
+            write_log(message)
 
         f = open("blacklist.txt", "r", encoding="utf-8")
         blacklist = f.read().split("\n")
@@ -137,16 +137,13 @@ async def on_message(message: discord.Message):
 
         if message.content.startswith("!four") or message.content.startswith("!help"):
             await message.channel.send("The commands with actual messages are depricated now. Please use the newer slash commands! ")
-            write_log_message(message)
+            write_log(message)
 
         else:
             fumens = await get_fumens(message.content)
-
             if fumens:
                 await commands.four(message, message.content)
-
-                write_log_message(message)
-
+                write_log(message)
             return
 
     except discord.Forbidden as e:
@@ -168,7 +165,7 @@ async def on_message(message: discord.Message):
 # Interaction events
 @client.event
 async def on_interaction(interaction: discord.Interaction):
-    write_log_inter(interaction)
+    write_log(interaction)
     return
 
 client.run(DISCORD_TOKEN)
