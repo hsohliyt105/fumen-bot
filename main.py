@@ -30,13 +30,13 @@ from dotenv import load_dotenv
 
 import command
 import helper
-from functions import get_fumens, write_log
+from functions import urls_to_fumens, get_fumens, write_log
 
 with open("general.log", "a", encoding="utf-8") as general_log_f:
     general_log_f.write(f"{datetime.now()} Started.\n")
 
 load_dotenv()
-DISCORD_TOKEN = environ["DISCORD_TOKEN"] # TEST_TOKEN or DISCORD_TOKEN
+DISCORD_TOKEN = environ["TEST_TOKEN"] # TEST_TOKEN or DISCORD_TOKEN
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -140,8 +140,9 @@ async def on_message(message: discord.Message):
             write_log(message)
 
         else:
-            fumens = await get_fumens(message.content)
-            if fumens:
+            tinyurl_fumens = await urls_to_fumens(message.content)
+            fumens = get_fumens(message.content)
+            if tinyurl_fumens or fumens:
                 await commands.four(message, message.content)
                 write_log(message)
             return

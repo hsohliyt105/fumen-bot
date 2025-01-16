@@ -9,9 +9,10 @@ async def get_redirection(url: str) -> str:
         raise Exception(response.reason)
 
 
-async def make_tinyurl(url) -> str:
+async def make_tinyurl(url: str) -> str:
+    tinyurl = "http://tinyurl.com/api-create.php?"
     params = {'url': url}
-    async with aiohttp.ClientSession() as session, session.post(url, data=params) as response:
+    async with aiohttp.ClientSession() as session, session.post(tinyurl, data=params) as response:
         if response.status==200:
             return await response.text()
         raise Exception(response.reason)

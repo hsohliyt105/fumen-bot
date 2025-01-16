@@ -8,7 +8,7 @@ import discord
 from py_fumen import decode, VersionException
 
 from draw_four import draw_fumens
-from functions import get_fumens, is_colour_code, get_tinyurls
+from functions import get_fumens, is_colour_code, urls_to_fumens
 from tinyurl_api import make_tinyurl
 import sql
 
@@ -31,11 +31,11 @@ class Commands():
         else:
             send = interaction.channel.send
         
-        fumens = await get_fumens(fumen_string)
-        tinyurls = get_tinyurls(fumen_string)
-        tinyurl_fumens = []
-        if tinyurls:
-            tinyurl_fumens = await get_fumens(tinyurls)
+        tinyurl_fumens = await urls_to_fumens(fumen_string)
+        fumens = get_fumens(fumen_string)
+        for fumen in tinyurl_fumens:
+            fumens.append(fumen)
+        fumens = list(set(fumens))
 
         images = []
         text = ""
@@ -69,13 +69,12 @@ class Commands():
                     image.filename = "image.gif"
 
                 tinyurl = ""
-                if not tinyurls or fumen not in tinyurl_fumens:
+                if fumen not in tinyurl_fumens:
                     base_url = "https://knewjade.github.io/fumen-for-mobile/#?d="
+                    print(base_url + fumen)
                     tinyurl = await make_tinyurl(base_url + fumen)
                 else:
-                    for i in range(len(tinyurl_fumens)):
-                        if tinyurl_fumens[i] == fumen:
-                            tinyurl = tinyurls[i]
+                    tinyurl = tinyurl_fumens[fumen]
 
                 text += tinyurl + "\n"
                 images.append(image)

@@ -2,10 +2,43 @@
 
 from io import BytesIO
 from os.path import abspath, dirname
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Literal
+from dataclasses import dataclass
 
+import discord
 import py_fumen
 from PIL import Image, ImageDraw, ImageFont
+
+import sql
+
+class FourDefault():
+    auto: bool = True
+    duration: float = 0.5
+    transparency: bool = True
+    background: Optional[str] = "default"
+    theme: Literal["light", "dark"] = "dark"
+    comment: bool = True
+
+@dataclass
+class FourSettings():
+    auto: Optional[bool] = None
+    duration: Optional[float] = None
+    transparency: Optional[bool] = None
+    background: Optional[str] = None
+    theme: Optional[Literal["light", "dark"]] = None
+    comment: Optional[bool] = None
+
+def load_four_settings(user: discord.User, settings: FourSettings) -> FourSettings:
+    loaded_dict = sql.load_user(user)
+        
+    settings.auto = settings.auto if settings.auto is not None else (loaded_dict['auto'] if loaded_dict is not None and loaded_dict['auto'] is not None else FourDefault.auto)
+    settings.duration = settings.duration if settings.duration is not None else (loaded_dict['duration'] if loaded_dict is not None and loaded_dict['duration'] is not None else FourDefault.duration)
+    settings.transparency = settings.transparency if settings.transparency is not None else (loaded_dict['transparency'] if loaded_dict is not None and loaded_dict['transparency'] is not None else FourDefault.transparency)
+    settings.background = settings.background.lower() if settings.background is not None else (loaded_dict['background'] if loaded_dict is not None and loaded_dict['background'] is not None else FourDefault.background)
+    settings.theme = settings.theme.lower() if settings.theme is not None else (loaded_dict['theme'] if loaded_dict is not None and loaded_dict['theme'] is not None else FourDefault.theme)
+    settings.comment = settings.comment if settings.comment is not None else (loaded_dict['comment'] if loaded_dict is not None and loaded_dict['comment'] is not None else FourDefault.comment)
+
+    return settings
 
 colours = {
     "light": {
@@ -18,7 +51,7 @@ colours = {
         "O": { "normal": '#f7d33e', "light": '#fff952', "clear": '#f9de49' },
         "X": { "normal": '#686868', "light": '#949494', "clear": '#848484' },
         "Empty": { "normal": '#ffffff' },
-        "Shadow": { "normal": '#6f6f6f1c' } # original colour is #6f6f6f17, but i changed because PIL gives errorneous results, idk why
+        "Shadow": { "normal": '#6f6f6f17' } # original colour is #6f6f6f17, but i changed because PIL gives errorneous results, idk why
     },
       "dark": {
         "I": { "normal": '#42afe1', "light": '#6ceaff', "clear": '#5cc7f9' },

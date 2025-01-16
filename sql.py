@@ -14,7 +14,7 @@ USER = "root"
 DB = "fumen_bot"
 PASSWORD = environ['MYSQL_PASSWORD']
 CHARSET = "utf8"
-CURSORCLASS = cursor.DictCursor
+CURSORCLASS = cursors.DictCursor
 
 def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = "", theme: Literal["light", "dark"] = "dark", comment: bool = True):
     conn = connect(host=HOST, user=USER, db=DB, password=PASSWORD, charset=CHARSET, cursorclass=CURSORCLASS)
