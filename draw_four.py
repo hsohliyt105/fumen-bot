@@ -7,38 +7,9 @@ from dataclasses import dataclass
 
 import discord
 import py_fumen
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImagePalette
 
 import sql
-
-class FourDefault():
-    auto: bool = True
-    duration: float = 0.5
-    transparency: bool = True
-    background: Optional[str] = "default"
-    theme: Literal["light", "dark"] = "dark"
-    comment: bool = True
-
-@dataclass
-class FourSettings():
-    auto: Optional[bool] = None
-    duration: Optional[float] = None
-    transparency: Optional[bool] = None
-    background: Optional[str] = None
-    theme: Optional[Literal["light", "dark"]] = None
-    comment: Optional[bool] = None
-
-def load_four_settings(user: discord.User, settings: FourSettings) -> FourSettings:
-    loaded_dict = sql.load_user(user)
-        
-    settings.auto = settings.auto if settings.auto is not None else (loaded_dict['auto'] if loaded_dict is not None and loaded_dict['auto'] is not None else FourDefault.auto)
-    settings.duration = settings.duration if settings.duration is not None else (loaded_dict['duration'] if loaded_dict is not None and loaded_dict['duration'] is not None else FourDefault.duration)
-    settings.transparency = settings.transparency if settings.transparency is not None else (loaded_dict['transparency'] if loaded_dict is not None and loaded_dict['transparency'] is not None else FourDefault.transparency)
-    settings.background = settings.background.lower() if settings.background is not None else (loaded_dict['background'] if loaded_dict is not None and loaded_dict['background'] is not None else FourDefault.background)
-    settings.theme = settings.theme.lower() if settings.theme is not None else (loaded_dict['theme'] if loaded_dict is not None and loaded_dict['theme'] is not None else FourDefault.theme)
-    settings.comment = settings.comment if settings.comment is not None else (loaded_dict['comment'] if loaded_dict is not None and loaded_dict['comment'] is not None else FourDefault.comment)
-
-    return settings
 
 colours = {
     "light": {
@@ -147,12 +118,7 @@ def draw(page: py_fumen.Page, size: Tuple[int, int], tile_size: int = 20, num_ro
     if display_comment: 
         comment = text_wrap(comment, font, width - 2 * comment_side_margin)
 
-    if transparency:
-        page_img = Image.new("RGBA", (width, height), "#FFFFFF00")
-    elif not background:
-        page_img = Image.new("RGBA", (width, height), colours[theme]["Empty"]["normal"])
-    else:
-        page_img = Image.new("RGBA", (width, height), background)
+    page_img = Image.new("RGBA", (width, height), background)
 
     overlay = Image.new("RGBA", (width, height), "#FFFFFF00")
     overlay_draw = ImageDraw.Draw(overlay)
@@ -260,6 +226,11 @@ def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0,
 
     page_imgs: List[Image.Image] = []
 
+    if transparency:
+        background = "#FFFFFF00"
+    elif not background:
+        background = colours[theme]["Empty"]["normal"]
+
     if not background:
         for x in range(start, end):
             page_imgs.append(draw(pages[x], (width, height), tile_size, max_num_rows, transparency, theme, display_comment=display_comment, font=font))
@@ -273,11 +244,23 @@ def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0,
         page_imgs[0].save(page_gif, format="PNG")
         page_gif.seek(0)
 
-    else:  
+    else:
+        palette_set = set([background[1:]])
         for i in range(len(page_imgs)):
             page_imgs[i] = page_imgs[i].convert("RGB")
+            temp = list(page_imgs[i].quantize(method=Image.Quantize.MEDIANCUT, dither=False).getpalette())
+            for i in range(0, len(temp), 3):
+                r = hex(int('100',16)+temp[i])[3:]
+                g = hex(int('100',16)+temp[i+1])[3:]
+                b = hex(int('100',16)+temp[i+2])[3:]
+                palette_set.add(r+g+b)
+        palette = []
+        for p in palette_set:
+            for i in range(3):
+                palette.append(int(p[i*2:i*2+2],16))
+        palette = ImagePalette.ImagePalette('RGB', palette)
         page_gif = BytesIO()
-        page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=2)
+        page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=2, palette=palette)
         page_gif.seek(0)
 
     return page_gif
