@@ -1,24 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from urllib.request import urlopen
+import aiohttp
 
-import requests
+async def get_redirection(url: str) -> str:
+    async with aiohttp.ClientSession() as session, session.get(url) as response:
+        if response.status==200 or 300<=response.status<310:
+            return str(response.real_url)
+        raise Exception(response.reason)
 
-def get_redirection(url: str) -> str:
-    r = urlopen(url)
-    status_code = r.getcode()
 
-    if status_code == 200 or 300 <= status_code < 310:
-        return r.url
-
-    raise ValueError
-
-def make_tinyurl(url) -> str:
+async def make_tinyurl(url: str) -> str:
+    tinyurl = "http://tinyurl.com/api-create.php?"
     params = {'url': url}
-
-    r = requests.post("http://tinyurl.com/api-create.php?", params=params)
-
-    if r.status_code == 200:
-        return r.text
-
-    raise Exception(r.reason)
+    async with aiohttp.ClientSession() as session, session.post(tinyurl, data=params) as response:
+        if response.status==200:
+            return await response.text()
+        raise Exception(response.reason)
