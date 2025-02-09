@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from io import BytesIO
-from os.path import abspath, dirname
-from typing import List, Optional, Tuple, Literal
-from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
-import discord
 import py_fumen
-from PIL import Image, ImageDraw, ImageFont, ImagePalette
-
-import sql
+from PIL import Image, ImageDraw, ImageFont, ImagePalette, GifImagePlugin
+GifImagePlugin.LOADING_STRATEGY = GifImagePlugin.LoadingStrategy.RGB_AFTER_DIFFERENT_PALETTE_ONLY
 
 colours = {
     "light": {
@@ -245,22 +241,8 @@ def draw_fumens(pages: List[py_fumen.Page], tile_size: int = 20, start: int = 0,
         page_gif.seek(0)
 
     else:
-        palette_set = set([background[1:]])
-        for i in range(len(page_imgs)):
-            page_imgs[i] = page_imgs[i].convert("RGB")
-            temp = list(page_imgs[i].quantize(method=Image.Quantize.MEDIANCUT, dither=False).getpalette())
-            for i in range(0, len(temp), 3):
-                r = hex(int('100',16)+temp[i])[3:]
-                g = hex(int('100',16)+temp[i+1])[3:]
-                b = hex(int('100',16)+temp[i+2])[3:]
-                palette_set.add(r+g+b)
-        palette = []
-        for p in palette_set:
-            for i in range(3):
-                palette.append(int(p[i*2:i*2+2],16))
-        palette = ImagePalette.ImagePalette('RGB', palette)
         page_gif = BytesIO()
-        page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=2, palette=palette)
+        page_imgs[0].save(page_gif, format="GIF", save_all=True, append_images=page_imgs[1:], duration=duration, loop=0, disposal=1)
         page_gif.seek(0)
 
     return page_gif

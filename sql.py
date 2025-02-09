@@ -26,7 +26,7 @@ def save_user(user: User, auto: bool = True, duration: float = 0.5, transparency
         conn.commit()
 
     except:
-        sql = f"UPDATE users SET auto='{auto}', duration='{duration}', transparency='{transparency}', background='{background}', theme='{theme}', comment='{comment}' WHERE discord_id={user.id}"
+        sql = f"UPDATE users SET auto='{auto}', duration='{duration}', transparency='{transparency}', background='{background}', theme='{theme}', comment='{comment}' WHERE user_id={user.id}"
         cur.execute(sql)
         conn.commit()
 
