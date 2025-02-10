@@ -3,7 +3,6 @@
 from os import environ
 from typing import Literal
 
-from discord import User
 from pymysql import connect, cursors
 from dotenv import load_dotenv
 
@@ -15,6 +14,9 @@ PASSWORD = environ['MYSQL_PASSWORD']
 CHARSET = "utf8"
 CURSORCLASS = cursors.DictCursor
 DB = "fumen_bot"
+
+class User():
+    id = 123
 
 def save_user(user: User, options: dict):
     prev_options = load_user(user)
@@ -64,3 +66,20 @@ def delete_user(user: User):
     conn.close()
 
     return
+
+options = {
+            'auto': None,
+            'duration': None,
+            'transparency': None,
+            'background': None,
+            'theme': None,
+            'comment': None
+        }
+user = User()
+options['auto'] = True
+save_user(user, options)
+print(load_user(user))
+options['auto'] = None
+options['duration'] = 1.2
+save_user(user, options)
+print(load_user(user))

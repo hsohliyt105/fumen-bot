@@ -117,15 +117,23 @@ class Commands():
 
         return
 
-    async def set(self, interaction: discord.Interaction, auto: bool = True, duration: float = 0.5, transparency: bool = True, background: str = "", theme: Literal["light", "dark"] = "dark", comment: bool = True):
+    async def set(self, interaction: discord.Interaction, auto: bool = None, duration: float = None, transparency: bool = None, background: str = None, theme: Literal["light", "dark"] = None, comment: bool = None):
         if background and not is_colour_code(background):
             await interaction.response.send("Please input correct background colour! ", ephemeral=True)
             return
 
-        if duration <= 0:
+        if duration and duration <= 0:
             await interaction.response.send("Please input correct duration! (duration > 0) ", ephemeral=True)
             return
 
-        sql.save_user(interaction.user, auto, duration, transparency, background, theme, comment)
-        
+        options = {
+            'auto': auto,
+            'duration': duration,
+            'transparency': transparency,
+            'background': background,
+            'theme': theme,
+            'comment': comment
+        }
+
+        sql.save_user(interaction.user, options)
         return

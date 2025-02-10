@@ -22,7 +22,7 @@ from os import environ
 from datetime import datetime
 from asyncio import sleep
 from traceback import format_exc
-from typing import Literal
+from typing import Literal, Optional
 
 import discord
 from discord.ext import tasks
@@ -58,7 +58,8 @@ commands = command.Commands()
                                theme="Theme colour of background (if not specified,) annd minos",
                                comment="Whether to show the comment section")
 async def four(interaction: discord.Interaction, 
-               fumen_string: str, duration: float = 0.5, 
+               fumen_string: str, 
+               duration: float = 0.5, 
                transparency: bool = True, 
                background: str = "", 
                theme: Literal["light", "dark"] = "dark", 
@@ -74,11 +75,12 @@ async def four(interaction: discord.Interaction,
                                theme="Theme colour of background (if not specified,) annd minos",
                                comment="Whether to show the comment section")
 async def set(interaction: discord.Interaction, 
-              auto: bool = True, duration: float = 0.5, 
-              transparency: bool = True, 
-              background: str = "", 
-              theme: Literal["light", "dark"] = "dark", 
-              comment: bool = True):
+              auto: bool = None, 
+              duration: float = None, 
+              transparency: bool = None, 
+              background: str = None, 
+              theme: Optional[Literal["light", "dark"]] = None, 
+              comment: bool = None):
     await commands.set(interaction, auto, duration, transparency, background, theme, comment)
     return
 
